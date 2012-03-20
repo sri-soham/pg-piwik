@@ -285,7 +285,7 @@ class Piwik_Tracker_Action implements Piwik_Tracker_Action_Interface
 			list($name,$type) = $actionNamesAndTypes[$actionToInsert];
 	
 			Piwik_Tracker::getDatabase()->query($sql, array($name, $name, $type));
-			$actionId = Piwik_Tracker::getDatabase()->lastInsertId();
+			$actionId = Piwik_Tracker::getDatabase()->lastInsertId(Piwik_Common::prefixTable('log_action'), 'idaction');
 			printDebug("Recorded a new action (".self::getActionTypeName($type).") in the lookup table: ". $name . " (idaction = ".$actionId.")");
 			
 			$actionNamesAndTypes[$actionToInsert][] = $actionId;
@@ -409,9 +409,10 @@ class Piwik_Tracker_Action implements Piwik_Tracker_Action_Interface
 		$values = Piwik_Common::getSqlStringFieldsArray($insertWithoutNulls);
 
 		$sql = "INSERT INTO ".Piwik_Common::prefixTable('log_link_visit_action'). " ($fields) VALUES ($values)";
+
 		Piwik_Tracker::getDatabase()->query( $sql, $bind ); 
 		
-		$this->idLinkVisitAction = Piwik_Tracker::getDatabase()->lastInsertId(); 
+		$this->idLinkVisitAction = Piwik_Tracker::getDatabase()->lastInsertId(Piwik_Common::prefixTable('log_link_visit_action'), 'idlink_va'); 
 		
 		$info = array( 
 			'idSite' => $this->idSite, 

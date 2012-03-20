@@ -68,7 +68,7 @@ class Piwik_Db_Schema
 //			'MSSQL' => array( 'Mssql' ),
 
 			// PostgreSQL
-//			'PDO_PGSQL' => array( 'Pgsql' ),
+			'PDO_PGSQL' => array( 'Pgsql' ),
 
 			// IBM DB2
 //			'IBM' => array( 'Ibm' ),
@@ -133,7 +133,7 @@ class Piwik_Db_Schema
 			}
 			else
 			{
-				$schemaName = 'Myisam';
+				$schemaName = 'Pgsql';
 			}
 			$className = self::getSchemaClassName($schemaName);
 			$schema = new $className();

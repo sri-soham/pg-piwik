@@ -480,7 +480,7 @@ class Piwik_SitesManager_API
 		
 		$db->insert(Piwik_Common::prefixTable("site"), $bind);
 									
-		$idSite = $db->lastInsertId();
+		$idSite = $db->lastInsertId(Piwik_Common::prefixTable("site"), 'idsite');
 		
 		$this->insertSiteUrls($idSite, $urls);
 		

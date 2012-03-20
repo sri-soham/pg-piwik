@@ -74,13 +74,35 @@ class Piwik_Dashboard extends Piwik_Plugin
 	{
 		// we catch the exception
 		try{
+
 			$sql = "CREATE TABLE ". Piwik_Common::prefixTable('user_dashboard')." (
 					login VARCHAR( 100 ) NOT NULL ,
 					iddashboard INT NOT NULL ,
 					layout TEXT NOT NULL,
 					PRIMARY KEY ( login , iddashboard )
-					)  DEFAULT CHARSET=utf8 " ;
+					) " ;
 			Piwik_Exec($sql);
+
+			$sql = "CREATE OR REPLACE FUNCTION " . Piwik_Common::prefixTable('dashboard_merge') . "() RETURNS trigger AS $$
+					DECLARE
+						v_cnt INT := 0;
+					BEGIN
+
+						SELECT 1 INTO v_cnt FROM " . Piwik_Common::prefixTable('user_dashboard') . " WHERE login = NEW.login AND iddashboard = NEW.iddashboard;
+
+						IF v_cnt = 1 THEN
+							UPDATE " . Piwik_Common::prefixTable('user_dashboard') . " SET layout = NEW.layout WHERE login = NEW.login AND iddashboard = NEW.iddashboard;
+							RETURN NULL;
+						END IF;
+
+						RETURN NEW;
+
+					END; $$ LANGUAGE plpgsql" ;
+			Piwik_Exec($sql);
+
+			$sql = "CREATE TRIGGER piwik_dashboard_merge BEFORE INSERT ON " . Piwik_Common::prefixTable('user_dashboard') . " FOR EACH ROW EXECUTE PROCEDURE " . Piwik_Common::prefixTable('dashboard_merge') . "()" ;
+			Piwik_Exec($sql);
+
 		} catch(Exception $e){
 			// mysql code error 1050:table already exists
 			// see bug #153 http://dev.piwik.org/trac/ticket/153

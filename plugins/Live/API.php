@@ -66,7 +66,7 @@ class Piwik_Live_API
 		
 		$select = "count(*) as visits,
 				SUM(log_visit.visit_total_actions) as actions,
-				SUM(log_visit.visit_goal_converted) as visitsConverted";
+				SUM(CASE log_visit.visit_goal_converted WHEN true THEN 1 ELSE 0 END) as \"visitsConverted\"";
 		
 		$from = "log_visit";
 		
@@ -177,10 +177,10 @@ class Piwik_Live_API
 				SELECT
 					log_action.type as type,
 					log_action.name AS url,
-					log_action_title.name AS pageTitle,
-					log_action.idaction AS pageIdAction,
-					log_link_visit_action.idlink_va AS pageId,
-					log_link_visit_action.server_time as serverTimePretty
+					log_action_title.name AS \"pageTitle\",
+					log_action.idaction AS \"pageIdAction\",
+					log_link_visit_action.idlink_va AS \"pageId\",
+					log_link_visit_action.server_time as \"serverTimePretty\"
 					$sqlCustomVariables
 				FROM " .Piwik_Common::prefixTable('log_link_visit_action')." AS log_link_visit_action
 					INNER JOIN " .Piwik_Common::prefixTable('log_action')." AS log_action
@@ -219,8 +219,8 @@ class Piwik_Live_API
 						'goal' as type,
 						goal.name as goalName,
 						goal.revenue as revenue,
-						log_conversion.idlink_va as goalPageId,
-						log_conversion.server_time as serverTimePretty,
+						log_conversion.idlink_va as \"goalPageId\",
+						log_conversion.server_time as \"serverTimePretty\",
 						log_conversion.url as url
 				FROM ".Piwik_Common::prefixTable('log_conversion')." AS log_conversion
 				LEFT JOIN ".Piwik_Common::prefixTable('goal')." AS goal 
@@ -235,15 +235,15 @@ class Piwik_Live_API
 
 			$sql = "SELECT 
 						case idgoal when ".Piwik_Tracker_GoalManager::IDGOAL_CART." then '".Piwik_Archive::LABEL_ECOMMERCE_CART."' else '".Piwik_Archive::LABEL_ECOMMERCE_ORDER."' end as type,
-						idorder as orderId,
+						idorder as \"orderId\",
 						".Piwik_ArchiveProcessing_Day::getSqlRevenue('revenue')." as revenue,
-						".Piwik_ArchiveProcessing_Day::getSqlRevenue('revenue_subtotal')." as revenueSubTotal,
-						".Piwik_ArchiveProcessing_Day::getSqlRevenue('revenue_tax')." as revenueTax,
-						".Piwik_ArchiveProcessing_Day::getSqlRevenue('revenue_shipping')." as revenueShipping,
-						".Piwik_ArchiveProcessing_Day::getSqlRevenue('revenue_discount')." as revenueDiscount,
+						".Piwik_ArchiveProcessing_Day::getSqlRevenue('revenue_subtotal')." as \"revenueSubTotal\",
+						".Piwik_ArchiveProcessing_Day::getSqlRevenue('revenue_tax')." as \"revenueTax\",
+						".Piwik_ArchiveProcessing_Day::getSqlRevenue('revenue_shipping')." as \"revenueShipping\",
+						".Piwik_ArchiveProcessing_Day::getSqlRevenue('revenue_discount')." as \"revenueDiscount\",
 						items as items,
 						
-						log_conversion.server_time as serverTimePretty
+						log_conversion.server_time as \"serverTimePretty\"
 					FROM ".Piwik_Common::prefixTable('log_conversion')." AS log_conversion
 					WHERE idvisit = ?
 						AND idgoal <= ".Piwik_Tracker_GoalManager::IDGOAL_ORDER;
@@ -278,9 +278,9 @@ class Piwik_Live_API
 			foreach($ecommerceDetails as $key => &$ecommerceConversion)
 			{
 				$sql = "SELECT 
-							log_action_sku.name as itemSKU,
-							log_action_name.name as itemName,
-							log_action_category.name as itemCategory,
+							log_action_sku.name as \"itemSKU\",
+							log_action_name.name as \"itemName\",
+							log_action_category.name as \"itemCategory\",
 							".Piwik_ArchiveProcessing_Day::getSqlRevenue('price')." as price,
 							quantity as quantity
 						FROM ".Piwik_Common::prefixTable('log_conversion_item')."
@@ -467,14 +467,13 @@ class Piwik_Live_API
 		
 		// Group by idvisit so that a visitor converting 2 goals only appears once
 		$sql = "
-			SELECT sub.* 
+			SELECT DISTINCT sub.* 
 			FROM ( 
 				".$subQuery['sql']."
 				$sqlLimit
 			) AS sub
-			GROUP BY sub.idvisit
 			ORDER BY $orderByParent
-		"; 
+		";
 		
 		try {
 			$data = Piwik_FetchAll($sql, $subQuery['bind']);

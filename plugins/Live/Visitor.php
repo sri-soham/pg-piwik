@@ -103,7 +103,8 @@ class Piwik_Live_Visitor
 	{
 		if(isset($this->details['idvisitor']))
 		{
-			return bin2hex($this->details['idvisitor']);
+			// FIXME ugly hack (stream_get_contents)
+			return bin2hex(stream_get_contents($this->details['idvisitor']));
 		}
 		return false;
 	}

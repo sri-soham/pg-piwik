@@ -388,16 +388,16 @@ class Piwik_UserSettings extends Piwik_Plugin
 	 */
 	protected function getDataTablePlugin()
 	{
-		$toSelect = "sum(case log_visit.config_pdf when 1 then 1 else 0 end) as pdf,
-				sum(case log_visit.config_flash when 1 then 1 else 0 end) as flash,
-				sum(case log_visit.config_java when 1 then 1 else 0 end) as java,
-				sum(case log_visit.config_director when 1 then 1 else 0 end) as director,
-				sum(case log_visit.config_quicktime when 1 then 1 else 0 end) as quicktime,
-				sum(case log_visit.config_realplayer when 1 then 1 else 0 end) as realplayer,
-				sum(case log_visit.config_windowsmedia when 1 then 1 else 0 end) as windowsmedia,
-				sum(case log_visit.config_gears when 1 then 1 else 0 end) as gears,
-				sum(case log_visit.config_silverlight when 1 then 1 else 0 end) as silverlight,
-				sum(case log_visit.config_cookie when 1 then 1 else 0 end) as cookie	";
+		$toSelect = "sum(case when log_visit.config_pdf then 1 else 0 end) as pdf,
+				sum(case when log_visit.config_flash then 1 else 0 end) as flash,
+				sum(case when log_visit.config_java then 1 else 0 end) as java,
+				sum(case when log_visit.config_director then 1 else 0 end) as director,
+				sum(case when log_visit.config_quicktime then 1 else 0 end) as quicktime,
+				sum(case when log_visit.config_realplayer then 1 else 0 end) as realplayer,
+				sum(case when log_visit.config_windowsmedia then 1 else 0 end) as windowsmedia,
+				sum(case when log_visit.config_gears then 1 else 0 end) as gears,
+				sum(case when log_visit.config_silverlight then 1 else 0 end) as silverlight,
+				sum(case when log_visit.config_cookie then 1 else 0 end) as cookie	";
 		return $this->archiveProcessing->getSimpleDataTableFromSelect($toSelect, Piwik_Archive::INDEX_NB_VISITS);
 	}
 }

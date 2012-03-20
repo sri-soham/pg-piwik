@@ -12,6 +12,8 @@
 
 /**
  * DBStats API is used to request the overall status of the Mysql tables in use by Piwik.
+ *
+ * FIXME PostgreSQL / needs to be ported to return PostgreSQL-related stats (system and table).
  * 
  * @package Piwik_DBStats
  */
@@ -68,7 +70,8 @@ class Piwik_DBStats_API
 		Piwik::checkUserIsSuperUser();
 		$db = Zend_Registry::get('db');
 		// http://dev.mysql.com/doc/refman/5.1/en/show-table-status.html
-		$tables = $db->fetchAll("SHOW TABLE STATUS LIKE ". $db->quote($table));
+		$tables = $db->fetchAll("SELECT c.relname, relpages, reltuples, seq_scan, seq_tup_read, idx_scan, idx_tup_fetch, n_tup_ins, n_tup_upd, n_tup_del, n_tup_hot_upd, " . 
+								"n_live_tup, n_dead_tup FROM pg_stat_user_tables t join pg_class c on (t.relid = c.oid) WHERE c.relname LIKE ". $db->quote($table));
 
 		if(!isset($tables[0])) {
 			throw new Exception('Error, table or field not found');
@@ -89,25 +92,28 @@ class Piwik_DBStats_API
 		$db = Zend_Registry::get('db');
 		// http://dev.mysql.com/doc/refman/5.1/en/show-table-status.html
 		$tablesPiwik =  Piwik::getTablesInstalled();
-		$total = array('Name' => 'Total', 'Data_length' => 0, 'Index_length' => 0, 'Rows' => 0);
+		$total = array('relname' => 'Total', 'relpages' => 0, 'reltuples' => 0, 'seq_scan' => 0, 'seq_tup_read' => 0, 'idx_scan' => 0,
+						'idx_tup_fetch' => 0, 'n_tup_ins' => 0, 'n_tup_upd' => 0, 'n_tup_del' => 0, 'n_tup_hot_upd' => 0, 'n_live_tup' => 0,
+						'n_dead_tup' => 0);
 		$table = array();
 		foreach($tablesPiwik as $tableName) 
 		{
 			$t = $this->getTableStatus($tableName);
-			$total['Data_length'] += $t['Data_length'];
-			$total['Index_length'] += $t['Index_length'];
-			$total['Rows'] += $t['Rows'];
+			$total['relpages'] += $t['relpages'];
+			$total['reltuples'] += $t['reltuples'];
+			$total['seq_scan'] += $t['seq_scan'];
+			$total['seq_tup_read'] += $t['seq_tup_read'];
+			$total['idx_scan'] += $t['idx_scan'];
+			$total['idx_tup_fetch'] += $t['idx_tup_fetch'];
+			$total['n_tup_ins'] += $t['n_tup_ins'];
+			$total['n_tup_upd'] += $t['n_tup_upd'];
+			$total['n_tup_del'] += $t['n_tup_del'];
+			$total['n_tup_hot_upd'] += $t['n_tup_hot_upd'];
+			$total['n_live_tup'] += $t['n_live_tup'];
+			$total['n_dead_tup'] += $t['n_dead_tup'];
 			
-			$t['Total_length'] = Piwik::getPrettySizeFromBytes($t['Index_length']+$t['Data_length']);
-			$t['Data_length'] = Piwik::getPrettySizeFromBytes($t['Data_length']);
-			$t['Index_length'] = Piwik::getPrettySizeFromBytes($t['Index_length']);
-			$t['Rows'] = Piwik::getPrettySizeFromBytes($t['Rows']);
 			$table[] = $t;
 		}
-		$total['Total_length'] = Piwik::getPrettySizeFromBytes($total['Data_length']+$total['Index_length']);
-		$total['Data_length'] = Piwik::getPrettySizeFromBytes($total['Data_length']);
-		$total['Index_length'] = Piwik::getPrettySizeFromBytes($total['Index_length']);
-		$total['TotalRows'] = Piwik::getPrettySizeFromBytes($total['Rows']);
 		$table['Total'] = $total;
 		
 		return $table;

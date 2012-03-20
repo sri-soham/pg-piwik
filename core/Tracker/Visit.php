@@ -74,8 +74,8 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			$ipString = Piwik_IP::getIpFromHeader();
 		}
 
-		$ip = Piwik_IP::P2N($ipString);
-		$this->ip = $ip;
+		// $ip = Piwik_IP::P2N($ipString);
+		$this->ip = $ipString;
 	}
 
 	function setForcedVisitorId($visitorId)
@@ -592,10 +592,16 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 		$values = Piwik_Common::getSqlStringFieldsArray($this->visitorInfo);
 
 		$sql = "INSERT INTO ".Piwik_Common::prefixTable('log_visit'). " ($fields) VALUES ($values)";
+
+		// FIXME PostgreSQL get rid of the bin2hex
+		$this->visitorInfo['idvisitor'] = '\x' . bin2hex($this->visitorInfo['idvisitor']);
+		$this->visitorInfo['config_id'] = '\x' . bin2hex($this->visitorInfo['config_id']);
+
 		$bind = array_values($this->visitorInfo);
+
 		Piwik_Tracker::getDatabase()->query( $sql, $bind);
 
-		$idVisit = Piwik_Tracker::getDatabase()->lastInsertId();
+		$idVisit = Piwik_Tracker::getDatabase()->lastInsertId(Piwik_Common::prefixTable('log_visit'), 'idvisit');
 		$this->visitorInfo['idvisit'] = $idVisit;
 
 		$this->visitorInfo['visit_first_action_time'] = $this->getCurrentTimestamp();
@@ -876,6 +882,7 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 			}
 					
 		}
+
 	}
 
 	/**
@@ -979,7 +986,7 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 				WHERE ".$where."
 				ORDER BY visit_last_action_time DESC
 				LIMIT 1";
-		}
+		} 
 		// We have a config_id AND a visitor_id. We match on either of these.
 		// 		Why do we also match on config_id?
 		//		we do not trust the visitor ID only. Indeed, some browsers, or browser addons, 
@@ -1024,10 +1031,11 @@ class Piwik_Tracker_Visit implements Piwik_Tracker_Visit_Interface
 					ORDER BY priority DESC 
 					LIMIT 1";
 		}
-		
-		
+
+		$bindSql[2] = '\x' . bin2hex($bindSql[2]);
+		$bindSql[5] = '\x' . bin2hex($bindSql[5]);
+
 		$visitRow = Piwik_Tracker::getDatabase()->fetch($sql, $bindSql);
-//		var_dump($sql);var_dump($bindSql);var_dump($visitRow);
 		
 		if( !Piwik_Config::getInstance()->Debug['tracker_always_new_visitor']
 			&& $visitRow

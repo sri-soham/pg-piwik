@@ -81,7 +81,7 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 				max(log_visit.visit_total_actions) as max_actions,
 				sum(log_visit.visit_total_time) as sum_visit_length,
 				sum(case log_visit.visit_total_actions when 1 then 1 when 0 then 1 else 0 end) as bounce_count,
-				sum(case log_visit.visit_goal_converted when 1 then 1 else 0 end) as nb_visits_converted
+				sum(case when log_visit.visit_goal_converted then 1 else 0 end) as nb_visits_converted
 			";
 			$from = "log_visit";
 			$where = "log_visit.visit_last_action_time >= ?
@@ -176,7 +176,7 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 				$selectAs = "$selectColumnPrefix$lowerBound-$upperBound";
 
 				$selects[] = "sum(case when $table.$column between $lowerBound and $upperBound $extraCondition".
-									 " then 1 else 0 end) as `$selectAs`";
+									 " then 1 else 0 end) as \"$selectAs\"";
 			}
 			else
 			{
@@ -184,7 +184,7 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 				
 				$selectAs = $selectColumnPrefix.($lowerBound + 1).urlencode('+');
 
-				$selects[] = "sum(case when $table.$column > $lowerBound $extraCondition then 1 else 0 end) as `$selectAs`";
+				$selects[] = "sum(case when $table.$column > $lowerBound $extraCondition then 1 else 0 end) as \"$selectAs\"";
 			}
 		}
 
@@ -304,7 +304,7 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 	        // then we also query the "Product page view" price which was possibly recorded.
 	        if(in_array(reset($label), array('custom_var_k3','custom_var_k4','custom_var_k5')))
 	        {
-	        	$select .= ", ".self::getSqlRevenue("AVG(log_link_visit_action.custom_var_v2)")." as `". Piwik_Archive::INDEX_ECOMMERCE_ITEM_PRICE_VIEWED ."`";
+	        	$select .= ", ".self::getSqlRevenue("AVG(log_link_visit_action.custom_var_v2::numeric)")." as \"". Piwik_Archive::INDEX_ECOMMERCE_ITEM_PRICE_VIEWED ."\"";
 	        }
 	    }
 	    else
@@ -323,9 +323,9 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 		 * Page URLs and Page names, general stats
 		 */
 		$select = "$select,
-				count(distinct log_link_visit_action.idvisit) as `". Piwik_Archive::INDEX_NB_VISITS ."`,
-				count(distinct log_link_visit_action.idvisitor) as `". Piwik_Archive::INDEX_NB_UNIQ_VISITORS ."`,
-				count(*) as `". Piwik_Archive::INDEX_NB_ACTIONS ."`";
+				count(distinct log_link_visit_action.idvisit) as \"". Piwik_Archive::INDEX_NB_VISITS ."\",
+				count(distinct log_link_visit_action.idvisitor) as \"". Piwik_Archive::INDEX_NB_UNIQ_VISITORS ."\",
+				count(*) as \"". Piwik_Archive::INDEX_NB_ACTIONS ."\"";
 
 		$from = "log_link_visit_action";
 		
@@ -372,13 +372,13 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 	    }
 	    
 	    $select = "$select,
-				count(distinct log_visit.idvisitor) as `". Piwik_Archive::INDEX_NB_UNIQ_VISITORS ."`,
-				count(*) as `". Piwik_Archive::INDEX_NB_VISITS ."`,
-				sum(log_visit.visit_total_actions) as `". Piwik_Archive::INDEX_NB_ACTIONS ."`,
-				max(log_visit.visit_total_actions) as `". Piwik_Archive::INDEX_MAX_ACTIONS ."`,
-				sum(log_visit.visit_total_time) as `". Piwik_Archive::INDEX_SUM_VISIT_LENGTH ."`,
-				sum(case log_visit.visit_total_actions when 1 then 1 when 0 then 1 else 0 end) as `". Piwik_Archive::INDEX_BOUNCE_COUNT ."`,
-				sum(case log_visit.visit_goal_converted when 1 then 1 else 0 end) as `". Piwik_Archive::INDEX_NB_VISITS_CONVERTED ."`";
+				count(distinct log_visit.idvisitor) as \"". Piwik_Archive::INDEX_NB_UNIQ_VISITORS ."\",
+				count(*) as \"". Piwik_Archive::INDEX_NB_VISITS ."\",
+				sum(log_visit.visit_total_actions) as \"". Piwik_Archive::INDEX_NB_ACTIONS ."\",
+				max(log_visit.visit_total_actions) as \"". Piwik_Archive::INDEX_MAX_ACTIONS ."\",
+				sum(log_visit.visit_total_time) as \"". Piwik_Archive::INDEX_SUM_VISIT_LENGTH ."\",
+				sum(case log_visit.visit_total_actions when 1 then 1 when 0 then 1 else 0 end) as \"". Piwik_Archive::INDEX_BOUNCE_COUNT ."\",
+				sum(case log_visit.visit_goal_converted when true then 1 else 0 end) as \"". Piwik_Archive::INDEX_NB_VISITS_CONVERTED ."\"";
 	    
 	    $from = "log_visit";
 	    
@@ -430,19 +430,19 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 	        $where = ' AND '.$where;
 	    }
 	    
-		$select .= 	self::getSqlRevenue('SUM(log_conversion.revenue_subtotal)')." as `". Piwik_Archive::INDEX_GOAL_ECOMMERCE_REVENUE_SUBTOTAL ."`,".
-		    		self::getSqlRevenue('SUM(log_conversion.revenue_tax)')." as `". Piwik_Archive::INDEX_GOAL_ECOMMERCE_REVENUE_TAX ."`,".
-		    		self::getSqlRevenue('SUM(log_conversion.revenue_shipping)')." as `". Piwik_Archive::INDEX_GOAL_ECOMMERCE_REVENUE_SHIPPING ."`,".
-		    		self::getSqlRevenue('SUM(log_conversion.revenue_discount)')." as `". Piwik_Archive::INDEX_GOAL_ECOMMERCE_REVENUE_DISCOUNT ."`,".
-		    		"SUM(log_conversion.items) as `". Piwik_Archive::INDEX_GOAL_ECOMMERCE_ITEMS ."`, ";
+		$select .= 	self::getSqlRevenue('SUM(log_conversion.revenue_subtotal)')." as \"". Piwik_Archive::INDEX_GOAL_ECOMMERCE_REVENUE_SUBTOTAL ."\",".
+		    		self::getSqlRevenue('SUM(log_conversion.revenue_tax)')." as \"". Piwik_Archive::INDEX_GOAL_ECOMMERCE_REVENUE_TAX ."\",".
+		    		self::getSqlRevenue('SUM(log_conversion.revenue_shipping)')." as \"". Piwik_Archive::INDEX_GOAL_ECOMMERCE_REVENUE_SHIPPING ."\",".
+		    		self::getSqlRevenue('SUM(log_conversion.revenue_discount)')." as \"". Piwik_Archive::INDEX_GOAL_ECOMMERCE_REVENUE_DISCOUNT ."\",".
+		    		"SUM(log_conversion.items) as \"". Piwik_Archive::INDEX_GOAL_ECOMMERCE_ITEMS ."\", ";
 		    		
 	    $groupBy = !empty($groupBy) ? ", $groupBy" : '';
 	    
 	    $select = "$select
 				log_conversion.idgoal,
-				count(*) as `". Piwik_Archive::INDEX_GOAL_NB_CONVERSIONS ."`,
-				".self::getSqlRevenue('SUM(log_conversion.revenue)')." as `". Piwik_Archive::INDEX_GOAL_REVENUE ."`,
-				count(distinct log_conversion.idvisit) as `". Piwik_Archive::INDEX_GOAL_NB_VISITS_CONVERTED."`";
+				count(*) as \"". Piwik_Archive::INDEX_GOAL_NB_CONVERSIONS ."\",
+				".self::getSqlRevenue('SUM(log_conversion.revenue)')." as \"". Piwik_Archive::INDEX_GOAL_REVENUE ."\",
+				count(distinct log_conversion.idvisit) as \"". Piwik_Archive::INDEX_GOAL_NB_VISITS_CONVERTED."\"";
 	    
 	    $from = "log_conversion";
 	    
@@ -464,12 +464,12 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 	{
 		$query = "SELECT
 						name as label,
-						".self::getSqlRevenue('SUM(quantity * price)')." as `". Piwik_Archive::INDEX_ECOMMERCE_ITEM_REVENUE ."`,
-						".self::getSqlRevenue('SUM(quantity)')." as `". Piwik_Archive::INDEX_ECOMMERCE_ITEM_QUANTITY ."`,
-						".self::getSqlRevenue('SUM(price)')." as `". Piwik_Archive::INDEX_ECOMMERCE_ITEM_PRICE ."`,
-						count(distinct idorder) as `". Piwik_Archive::INDEX_ECOMMERCE_ORDERS."`,
-						count(idvisit) as `". Piwik_Archive::INDEX_NB_VISITS."`,
-						case idorder when '0' then ".Piwik_Tracker_GoalManager::IDGOAL_CART." else ".Piwik_Tracker_GoalManager::IDGOAL_ORDER." end as ecommerceType
+						".self::getSqlRevenue('SUM(quantity * price)')." as \"". Piwik_Archive::INDEX_ECOMMERCE_ITEM_REVENUE ."\",
+						".self::getSqlRevenue('SUM(quantity)')." as \"". Piwik_Archive::INDEX_ECOMMERCE_ITEM_QUANTITY ."\",
+						".self::getSqlRevenue('SUM(price)')." as \"". Piwik_Archive::INDEX_ECOMMERCE_ITEM_PRICE ."\",
+						count(distinct idorder) as \"". Piwik_Archive::INDEX_ECOMMERCE_ORDERS."\",
+						count(idvisit) as \"". Piwik_Archive::INDEX_NB_VISITS."\",
+						case idorder when '0' then ".Piwik_Tracker_GoalManager::IDGOAL_CART." else ".Piwik_Tracker_GoalManager::IDGOAL_ORDER." end as \"ecommerceType\"
 			 	FROM ".Piwik_Common::prefixTable('log_conversion_item')."
 			 		LEFT JOIN ".Piwik_Common::prefixTable('log_action')."
 			 		ON $field = idaction
@@ -477,8 +477,8 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 						AND server_time <= ?
 			 			AND idsite = ?
 			 			AND deleted = 0
-			 	GROUP BY ecommerceType, $field
-				ORDER BY NULL";
+			 	GROUP BY name, \"ecommerceType\", $field
+				ORDER BY name";
 						
 		$bind = array( $this->getStartDatetimeUTC(),
                        $this->getEndDatetimeUTC(),
@@ -490,7 +490,7 @@ class Piwik_ArchiveProcessing_Day extends Piwik_ArchiveProcessing
 	
 	static public function getSqlRevenue($field)
 	{
-		return "ROUND(".$field.",".Piwik_Tracker_GoalManager::REVENUE_PRECISION.")";
+		return "ROUND(".$field."::numeric,".Piwik_Tracker_GoalManager::REVENUE_PRECISION.")";
 	}
 	
 	public function getDataTableFromArray( $array )

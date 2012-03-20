@@ -204,6 +204,11 @@ class Piwik_Tracker
 				require_once PIWIK_INCLUDE_PATH .'/core/Tracker/Db/Pdo/Mysql.php';
 				return new Piwik_Tracker_Db_Pdo_Mysql($configDb);
 
+			case 'PDO_PGSQL':
+				require_once PIWIK_INCLUDE_PATH .'/core/Tracker/Db/Pdo/Mysql.php';
+				require_once PIWIK_INCLUDE_PATH .'/core/Tracker/Db/Pdo/Pgsql.php';
+				return new Piwik_Tracker_Db_Pdo_Pgsql($configDb);
+
 			case 'MYSQLI':
 				require_once PIWIK_INCLUDE_PATH .'/core/Tracker/Db/Mysqli.php';
 				return new Piwik_Tracker_Db_Mysqli($configDb);

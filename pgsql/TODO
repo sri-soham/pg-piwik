@@ -1,0 +1,9 @@
+Allow setting a schema (search_path), currently this can be done by setting the prefix to 'schema.prefix'.
+
+Handle properly all the 'ON DUPLICATE KEY' cases.
+
+Verify all the translations of TINYINT -> BOOLEAN and fixes of SQL queries (mostly SUM(CASE) patterns).
+
+Check all the calls to bin2hex/hex2bin (visitor ID), P2N/N2P (IP address).
+
+Fix INSERTs into log_conversion (in GoalManager.php) that fail because of empty values.

@@ -93,12 +93,34 @@ class Piwik_LanguagesManager extends Piwik_Plugin
 	{
 		// we catch the exception
 		try{
+
 			$sql = "CREATE TABLE ". Piwik_Common::prefixTable('user_language')." (
 					login VARCHAR( 100 ) NOT NULL ,
 					language VARCHAR( 10 ) NOT NULL ,
 					PRIMARY KEY ( login )
-					)  DEFAULT CHARSET=utf8 " ;
+					)" ;
 			Piwik_Exec($sql);
+
+			$sql = "CREATE OR REPLACE FUNCTION " . Piwik_Common::prefixTable('language_merge') . "() RETURNS trigger AS $$
+					DECLARE
+						v_cnt INT := 0;
+					BEGIN
+
+						SELECT 1 INTO v_cnt FROM " . Piwik_Common::prefixTable('user_language') . " WHERE login = NEW.login;
+
+						IF v_cnt = 1 THEN
+							UPDATE " . Piwik_Common::prefixTable('user_language') . " SET language = NEW.language WHERE login = NEW.login;
+							RETURN NULL;
+						END IF;
+
+						RETURN NEW;
+
+						END; $$ LANGUAGE plpgsql" ;
+			Piwik_Exec($sql);
+
+			$sql = "CREATE TRIGGER piwik_language_merge BEFORE INSERT ON " . Piwik_Common::prefixTable('user_language') ." FOR EACH ROW EXECUTE PROCEDURE " . Piwik_Common::prefixTable('language_merge') . "()";
+			Piwik_Exec($sql);
+
 		} catch(Exception $e){
 			// mysql code error 1050:table already exists
 			// see bug #153 http://dev.piwik.org/trac/ticket/153

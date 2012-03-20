@@ -94,13 +94,9 @@ class Piwik_Session_SaveHandler_DbTable implements Zend_Session_SaveHandler_Inte
 				.$this->config['modifiedColumn'].','
 				.$this->config['lifetimeColumn'].','
 				.$this->config['dataColumn'].')'
-			.' VALUES (?,?,?,?)'
-			.' ON DUPLICATE KEY UPDATE '
-				.$this->config['modifiedColumn'].' = ?,'
-				.$this->config['lifetimeColumn'].' = ?,'
-				.$this->config['dataColumn'].' = ?';
+			.' VALUES (?,?,?,?)';
 
-		$this->config['db']->query($sql, array($id, time(), $this->maxLifetime, $data, time(), $this->maxLifetime, $data));
+		$this->config['db']->query($sql, array($id, time(), $this->maxLifetime, $data));
 
 		return true;
 	}

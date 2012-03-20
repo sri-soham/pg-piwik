@@ -184,11 +184,10 @@ class Piwik_LanguagesManager_API
 		{
 			return false;
 		}
-		$paramsBind = array($login, $languageCode, $languageCode);
+		$paramsBind = array($login, $languageCode);
 		Piwik_Query('INSERT INTO '.Piwik_Common::prefixTable('user_language') .
 					' (login, language)
-						VALUES (?,?)
-					ON DUPLICATE KEY UPDATE language=?',
+						VALUES (?,?)',
 					$paramsBind);
 	}
 }

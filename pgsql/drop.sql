@@ -1,0 +1,17 @@
+DROP TABLE piwik_access;
+DROP TABLE piwik_log_action;
+DROP TABLE piwik_logger_error;
+DROP TABLE piwik_logger_message;
+DROP TABLE piwik_site_url; 
+DROP TABLE piwik_goal;
+DROP TABLE piwik_logger_api_call;
+DROP TABLE piwik_logger_exception;
+DROP TABLE piwik_site;
+DROP TABLE piwik_user;
+DROP TABLE piwik_log_conversion_item;
+DROP TABLE piwik_log_visit;
+DROP TABLE piwik_log_conversion;
+DROP TABLE piwik_log_link_visit_action;
+DROP TABLE piwik_log_profiling;
+DROP TABLE piwik_option;
+DROP TABLE piwik_session;

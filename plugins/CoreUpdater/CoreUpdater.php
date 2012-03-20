@@ -59,6 +59,7 @@ class Piwik_CoreUpdater extends Piwik_Plugin
 		$updater = new Piwik_Updater();
 		$updater->addComponentToCheck('core', Piwik_Version::VERSION);
 		$updates = $updater->getComponentsWithNewVersion();
+
 		if(!empty($updates))
 		{
 			Piwik::deleteAllCacheOnUpdate();

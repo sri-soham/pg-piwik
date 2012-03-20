@@ -149,21 +149,21 @@ class Piwik_PDFReports extends Piwik_Plugin
 	{
 		$queries[] = "
                 CREATE TABLE ".Piwik_Common::prefixTable('pdf')." (
-					idreport INT(11) NOT NULL AUTO_INCREMENT,
-					idsite INTEGER(11) NOT NULL,
+					idreport SERIAL,
+					idsite INTEGER NOT NULL,
 					login VARCHAR(100) NOT NULL,
 					description VARCHAR(255) NOT NULL,
 					period VARCHAR(10) NULL,
 					format VARCHAR(10),
-					aggregate_reports_format TINYINT(1) NOT NULL,
-					email_me TINYINT NULL,
+					aggregate_reports_format BOOLEAN NOT NULL,
+					email_me INT NULL,
 					additional_emails TEXT NULL,
 					reports TEXT NOT NULL,
 					ts_created TIMESTAMP NULL,
 					ts_last_sent TIMESTAMP NULL,
-					deleted tinyint(4) NOT NULL default '0',
+					deleted INT NOT NULL default '0',
 					PRIMARY KEY (idreport)
-				) DEFAULT CHARSET=utf8";
+				)";
         try {
         	foreach($queries as $query)
         	{

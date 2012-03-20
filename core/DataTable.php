@@ -1018,7 +1018,8 @@ class Piwik_DataTable
 	  */
 	public function addRowsFromSerializedArray( $stringSerialized )
 	{
-		$serialized = unserialize($stringSerialized);
+		/* FIXME ugly hack (stream_get_contents) */
+		$serialized = unserialize(stream_get_contents($stringSerialized));
 		if($serialized === false)
 		{
 			throw new Exception("The unserialization has failed!");

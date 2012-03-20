@@ -815,9 +815,10 @@ abstract class Piwik_ArchiveProcessing
 		
 		// duplicate idarchives are Ignored, see http://dev.piwik.org/trac/ticket/987
 		
-		$query = "INSERT IGNORE INTO ".$table->getTableName()." 
+		$query = "INSERT INTO ".$table->getTableName()." 
 					(". implode(", ", $this->getInsertFields()).")
 					VALUES (?,?,?,?,?,?,?,?)";
+
 		$bindSql = $this->getBindArray();
 		$bindSql[] = $name;
 		$bindSql[] = $value;
@@ -843,7 +844,7 @@ abstract class Piwik_ArchiveProcessing
 							$this->period->getDateEnd()->toString('Y-m-d'), 
 							$this->periodId, 
 		);
-		
+
 		$timeStampWhere = '';
 		
 		if($this->minDatetimeArchiveProcessedUTC)
@@ -866,7 +867,7 @@ abstract class Piwik_ArchiveProcessing
 			$sqlSegmentsFindArchiveAllPlugins = "OR (name = '".$doneAllPluginsProcessed."' AND value = ".Piwik_ArchiveProcessing::DONE_OK.")
 					OR (name = '".$doneAllPluginsProcessed."' AND value = ".Piwik_ArchiveProcessing::DONE_OK_TEMPORARY.")";
 		}
-		$sqlQuery = "	SELECT idarchive, value, name, date1 as startDate
+		$sqlQuery = "	SELECT idarchive, value, name, date1 as \"startDate\"
 						FROM ".$this->tableArchiveNumeric->getTableName()."
 						WHERE idsite = ?
 							AND date1 = ?

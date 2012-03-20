@@ -2453,7 +2453,9 @@ class Piwik
 	static public function tableInsertBatchIterate($tableName, $fields, $values, $ignoreWhenDuplicate = true)
 	{
 		$fieldList = '('.join(',', $fields).')';
-		$ignore = $ignoreWhenDuplicate ? 'IGNORE' : '';
+		/* FIXME PostgreSQL / handle the duplicates properly */
+		// $ignore = $ignoreWhenDuplicate ? 'IGNORE' : '';
+		$ignore = $ignoreWhenDuplicate ? '' : '';
 
 		foreach($values as $row) {
 			$query = "INSERT $ignore
@@ -2483,7 +2485,8 @@ class Piwik
 			. $period->getId() . '/'
 			. $period->getDateStart()->toString('Y-m-d') . ','
 			. $period->getDateEnd()->toString('Y-m-d');
-		return $lockName .'/'. md5($lockName . Piwik_Common::getSalt());
+		/* in PostgreSQL, the lock IDs are just integers */
+		return crc32 ($lockName . Piwik_Common::getSalt());
 	}
 
 	/**
@@ -2502,14 +2505,14 @@ class Piwik
 		 * we use a 1 second timeout and loop, to avoid losing our MySQL
 		 * connection
 		 */
-		$sql = 'SELECT GET_LOCK(?, 1)';
+		$sql = 'SELECT pg_advisory_lock(?)';
 
 		$db = Zend_Registry::get('db');
 
 		$maxRetries = 30;
 		while ($maxRetries > 0)
 		{
-			if ($db->fetchOne($sql, array($lockName)) == '1')
+			if (count($db->fetchAll($sql, array($lockName))) == '1')
 			{
 				return true;
 			}
@@ -2528,7 +2531,7 @@ class Piwik
 	static public function releaseArchiveProcessingLock($idsite, $period, $segment)
 	{
 		$lockName = self::getArchiveProcessingLockName($idsite, $period, $segment);
-		$sql = 'SELECT RELEASE_LOCK(?)';
+		$sql = 'SELECT pg_advisory_unlock(?)';
 
 		$db = Zend_Registry::get('db');
 		return $db->fetchOne($sql, array($lockName)) == '1';

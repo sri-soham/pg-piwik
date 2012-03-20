@@ -19,10 +19,10 @@
 class Piwik_Tracker_Db_Pdo_Mysql extends Piwik_Tracker_Db
 {
 	protected $connection = null;
-	private $dsn;
-	private $username;
-	private $password;
-	private $charset;
+	protected $dsn;
+	protected $username;
+	protected $password;
+	protected $charset;
 	
 	/**
 	 * Builds the DB object
@@ -187,7 +187,7 @@ class Piwik_Tracker_Db_Pdo_Mysql extends Piwik_Tracker_Db
 	 * 
 	 * @return int
 	 */
-	public function lastInsertId()
+	public function lastInsertId($table = null, $column = null)
 	{
 		return $this->connection->lastInsertId();
 	}

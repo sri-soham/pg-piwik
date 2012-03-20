@@ -447,9 +447,9 @@ class Piwik_Actions extends Piwik_Plugin
 		$select = "log_action.name,
 				log_action.type,
 				log_action.idaction,
-				count(distinct log_link_visit_action.idvisit) as `". Piwik_Archive::INDEX_NB_VISITS ."`,
-				count(distinct log_link_visit_action.idvisitor) as `". Piwik_Archive::INDEX_NB_UNIQ_VISITORS ."`,
-				count(*) as `". Piwik_Archive::INDEX_PAGE_NB_HITS ."`";
+				count(distinct log_link_visit_action.idvisit) as \"". Piwik_Archive::INDEX_NB_VISITS ."\",
+				count(distinct log_link_visit_action.idvisitor) as \"". Piwik_Archive::INDEX_NB_UNIQ_VISITORS ."\",
+				count(*) as \"". Piwik_Archive::INDEX_PAGE_NB_HITS ."\"";
 		
 		$from = array(
 			"log_link_visit_action",
@@ -465,7 +465,7 @@ class Piwik_Actions extends Piwik_Plugin
 				AND log_link_visit_action.%s IS NOT NULL";
 			
 		$groupBy = "log_action.idaction";
-		$orderBy = "`". Piwik_Archive::INDEX_PAGE_NB_HITS ."` DESC";
+		$orderBy = "\"". Piwik_Archive::INDEX_PAGE_NB_HITS ."\" DESC";
 		
 		$this->archiveDayQueryProcess($select, $from, $where, $orderBy, $groupBy,
 				"idaction_url", $archiveProcessing);
@@ -477,11 +477,11 @@ class Piwik_Actions extends Piwik_Plugin
 		 * Entry actions for Page URLs and Page names
 		 */
 		$select = "log_visit.%s as idaction,
-				count(distinct log_visit.idvisitor) as `". Piwik_Archive::INDEX_PAGE_ENTRY_NB_UNIQ_VISITORS ."`,
-				count(*) as `". Piwik_Archive::INDEX_PAGE_ENTRY_NB_VISITS ."`,
-				sum(log_visit.visit_total_actions) as `". Piwik_Archive::INDEX_PAGE_ENTRY_NB_ACTIONS ."`,
-				sum(log_visit.visit_total_time) as `". Piwik_Archive::INDEX_PAGE_ENTRY_SUM_VISIT_LENGTH ."`,
-				sum(case log_visit.visit_total_actions when 1 then 1 when 0 then 1 else 0 end) as `". Piwik_Archive::INDEX_PAGE_ENTRY_BOUNCE_COUNT ."`";
+				count(distinct log_visit.idvisitor) as \"". Piwik_Archive::INDEX_PAGE_ENTRY_NB_UNIQ_VISITORS ."\",
+				count(*) as \"". Piwik_Archive::INDEX_PAGE_ENTRY_NB_VISITS ."\",
+				sum(log_visit.visit_total_actions) as \"". Piwik_Archive::INDEX_PAGE_ENTRY_NB_ACTIONS ."\",
+				sum(log_visit.visit_total_time) as \"". Piwik_Archive::INDEX_PAGE_ENTRY_SUM_VISIT_LENGTH ."\",
+				sum(case log_visit.visit_total_actions when 1 then 1 when 0 then 1 else 0 end) as \"". Piwik_Archive::INDEX_PAGE_ENTRY_BOUNCE_COUNT ."\"";
 		
 		$from = "log_visit";
 		
@@ -502,8 +502,8 @@ class Piwik_Actions extends Piwik_Plugin
 		 * Exit actions
 		 */
 		$select = "log_visit.%s as idaction,
-				count(distinct log_visit.idvisitor) as `". Piwik_Archive::INDEX_PAGE_EXIT_NB_UNIQ_VISITORS ."`,
-				count(*) as `". Piwik_Archive::INDEX_PAGE_EXIT_NB_VISITS ."`";
+				count(distinct log_visit.idvisitor) as \"". Piwik_Archive::INDEX_PAGE_EXIT_NB_UNIQ_VISITORS ."\",
+				count(*) as \"". Piwik_Archive::INDEX_PAGE_EXIT_NB_VISITS ."\"";
 		
 		$from = "log_visit";
 		
@@ -525,7 +525,7 @@ class Piwik_Actions extends Piwik_Plugin
 		 * Time per action
 		 */
 		$select = "log_link_visit_action.%s as idaction,
-				sum(log_link_visit_action.time_spent_ref_action) as `".Piwik_Archive::INDEX_PAGE_SUM_TIME_SPENT."`";
+				sum(log_link_visit_action.time_spent_ref_action) as \"".Piwik_Archive::INDEX_PAGE_SUM_TIME_SPENT."\"";
 		
 		$from = "log_link_visit_action";
 		

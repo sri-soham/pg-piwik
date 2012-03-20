@@ -36,7 +36,7 @@ class Piwik_ExampleFeedburner extends Piwik_Plugin
 	function install()
 	{
 		try{
-			Piwik_Exec('ALTER TABLE '.Piwik_Common::prefixTable('site'). " ADD `feedburnerName` VARCHAR( 100 ) DEFAULT NULL");
+			Piwik_Exec('ALTER TABLE '.Piwik_Common::prefixTable('site'). " ADD feedburnerName VARCHAR( 100 ) DEFAULT NULL");
 		} catch(Exception $e){
 			// mysql code error 1060: column already exists
 			// if there is another error we throw the exception, otherwise it is OK as we are simply reinstalling the plugin
@@ -49,7 +49,7 @@ class Piwik_ExampleFeedburner extends Piwik_Plugin
 	
 	function uninstall()
 	{
-		Piwik_Query('ALTER TABLE '.Piwik_Common::prefixTable('site'). " DROP `feedburnerName`");
+		Piwik_Query('ALTER TABLE '.Piwik_Common::prefixTable('site'). " DROP feedburnerName");
 	}
 }
 

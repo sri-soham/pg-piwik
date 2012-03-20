@@ -37,7 +37,6 @@ class Piwik_Tracker_Db_Pdo_Pgsql extends Piwik_Tracker_Db_Pdo_Mysql
 		{
 			$timer = $this->initProfiler();
 		}
-
 		
 		$this->connection = new PDO($this->dsn, $this->username, $this->password, $config = array());
 		$this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -114,5 +113,16 @@ class Piwik_Tracker_Db_Pdo_Pgsql extends Piwik_Tracker_Db_Pdo_Mysql
 	public function rowCount($queryResult)
 	{
 		return $queryResult->rowCount();
+	}
+	
+	/**
+	 * Returns the last inserted ID in the DB
+	 * Wrapper of PDO::lastInsertId()
+	 * 
+	 * @return int
+	 */
+	public function lastInsertId($table = null, $column = null)
+	{
+		return $this->connection->lastInsertId($table . '_' . $column . '_seq');
 	}
 }

@@ -55,7 +55,7 @@ class Piwik_Option
 			return $this->all[$name];
 		}
 		$value = Piwik_FetchOne( 'SELECT option_value '. 
-							'FROM `' . Piwik_Common::prefixTable('option') . '`'.
+							'FROM ' . Piwik_Common::prefixTable('option') . ' '.
 							'WHERE option_name = ?', $name);
 		if($value === false)
 		{
@@ -68,6 +68,8 @@ class Piwik_Option
 	/**
 	 * Sets the option value in the database and cache
 	 *
+	 * FIXME PostgreSQL - this uses a trigger-based hack to handle duplicate values, fix that properly (although it works fine)
+	 *
 	 * @param string $name
 	 * @param string $value
 	 * @param int $autoload if set to 1, this option value will be automatically loaded; should be set to 1 for options that will always be used in the Piwik request.
@@ -75,10 +77,11 @@ class Piwik_Option
 	public function set($name, $value, $autoload = 0)
 	{
 		$autoload = (int)$autoload;
-		Piwik_Query('INSERT INTO `'. Piwik_Common::prefixTable('option') . '` (option_name, option_value, autoload) '.
-					' VALUES (?, ?, ?) '.
-					' ON DUPLICATE KEY UPDATE option_value = ?', 
-					array($name, $value, $autoload, $value));
+		Piwik_Query('INSERT INTO '. Piwik_Common::prefixTable('option') . ' (option_name, option_value, autoload) '.
+					' VALUES (?, ?, ?) ' //.
+//					' ON DUPLICATE KEY UPDATE option_value = ?'
+, 
+					array($name, $value, $autoload));
 		$this->all[$name] = $value;
 	}
 
@@ -90,7 +93,7 @@ class Piwik_Option
 	 */
 	public function delete($name, $value = null)
 	{
-		$sql = 'DELETE FROM `'. Piwik_Common::prefixTable('option') . '` WHERE option_name = ?';
+		$sql = 'DELETE FROM '. Piwik_Common::prefixTable('option') . ' WHERE option_name = ?';
 		$bind[] = $name;
 
 		if(isset($value))
@@ -113,7 +116,7 @@ class Piwik_Option
 	 */
 	public function deleteLike($name, $value = null)
 	{
-		$sql = 'DELETE FROM `'. Piwik_Common::prefixTable('option') . '` WHERE option_name LIKE ?';
+		$sql = 'DELETE FROM '. Piwik_Common::prefixTable('option') . ' WHERE option_name LIKE ?';
 		$bind[] = $name;
 
 		if(isset($value))
@@ -140,8 +143,8 @@ class Piwik_Option
 		}
 
 		$all = Piwik_FetchAll('SELECT option_value, option_name
-								FROM `'. Piwik_Common::prefixTable('option') . '` 
-								WHERE autoload = 1');
+								FROM '. Piwik_Common::prefixTable('option') . ' 
+								WHERE autoload');
 		foreach($all as $option)
 		{
 			$this->all[$option['option_name']] = $option['option_value'];

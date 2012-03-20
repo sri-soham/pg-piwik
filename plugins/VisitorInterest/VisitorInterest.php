@@ -217,9 +217,9 @@ class Piwik_VisitorInterest extends Piwik_Plugin
 		// extra condition for the SQL SELECT that makes sure only returning visits are counted
 		// when creating the 'days since last visit' report. the SELECT expression below it
 		// is used to count all new visits.
-		$daysSinceLastExtraCondition = 'and log_visit.visitor_returning = 1';
+		$daysSinceLastExtraCondition = 'and log_visit.visitor_returning > 0';
 		$selectAs = $daysSinceLastVisitPrefix.'General_NewVisits';
-		$newVisitCountSelect = "sum(case when log_visit.visitor_returning = 0 then 1 else 0 end) as `$selectAs`";
+		$newVisitCountSelect = "sum(case when log_visit.visitor_returning = 0 then 1 else 0 end) as \"$selectAs\"";
 
 		// create the select expressions to use
 		$timeGapSelects = Piwik_ArchiveProcessing_Day::buildReduceByRangeSelect(

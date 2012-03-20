@@ -818,10 +818,10 @@ class Piwik_Tracker_GoalManager
 		}
 		else
 		{
-			$sql = 'INSERT IGNORE INTO ' . Piwik_Common::prefixTable('log_conversion') . "	
+			$sql = 'INSERT INTO ' . Piwik_Common::prefixTable('log_conversion') . "	
 					($fields) VALUES ($bindFields) ";
 			$bind = array_values($newGoal);
-			$result = Piwik_Tracker::getDatabase()->query($sql, $bind);
+			$result = Piwik_Tracker::getDatabase()->query($sql, $bind);		// FIXME this fails because of empty values etc.
 			
 			// If a record was inserted, we return true
 			return Piwik_Tracker::getDatabase()->rowCount($result) > 0;

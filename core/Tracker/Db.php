@@ -99,9 +99,7 @@ abstract class Piwik_Tracker_Db
 			$count = $info['count'];
 
 			$queryProfiling = "INSERT INTO ".Piwik_Common::prefixTable('log_profiling')."
-						(query,count,sum_time_ms) VALUES (?,$count,$time)
-						ON DUPLICATE KEY 
-							UPDATE count=count+$count,sum_time_ms=sum_time_ms+$time";
+						(query,count,sum_time_ms) VALUES (?,$count,$time)";
 			$this->query($queryProfiling,array($query));
 		}
 		
@@ -198,7 +196,7 @@ abstract class Piwik_Tracker_Db
 	 * 
 	 * @return int
 	 */
-	abstract public function lastInsertId();
+	abstract public function lastInsertId($table = null, $column = null);
 
 	/**
 	 * Test error number

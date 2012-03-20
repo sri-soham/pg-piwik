@@ -26,7 +26,7 @@ class Piwik_Archive_Array_IndexedByDate extends Piwik_Archive_Array
 	function __construct(Piwik_Site $oSite, $strPeriod, $strDate, Piwik_Segment $segment)
 	{
 		$rangePeriod = new Piwik_Period_Range($strPeriod, $strDate, $oSite->getTimezone());
-		foreach($rangePeriod->getSubperiods() as $subPeriod)
+			foreach($rangePeriod->getSubperiods() as $subPeriod)
 		{
 			$startDate = $subPeriod->getDateStart();
 			$archive = Piwik_Archive::build($oSite->getId(), $strPeriod, $startDate, $segment->getString() );
@@ -106,7 +106,7 @@ class Piwik_Archive_Array_IndexedByDate extends Piwik_Archive_Array
 				continue;
 			}
 
-			$sql = "SELECT value, name, date1 as startDate
+			$sql = "SELECT value, name, date1 as \"startDate\"
 					FROM $table
 					WHERE idarchive IN ( $inIds )
 					AND name IN ( $inNames )
